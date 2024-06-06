@@ -3,18 +3,14 @@ gpu: 0
 seed: 99
 
 # CLIP-related
-#text_prompt: "a silk polo shirt" # "human face in the style of Pixar Movie Up"
-#base_text_prompt: "a polo shirt" # "human face"
-#base_image_prompt: C:\Users\nsarafianos\Desktop\garments\tshirt.PNG
-#image_prompt: C:\Users\nsarafianos\Desktop\garments\shirt_1.jpg
 clip_model: ViT-B/32
 consistency_clip_model: ViT-B/32
 consistency_vit_stride: 8
 consistency_vit_layer: 11
 
 # Mesh
-mesh: ./meshes/longsleeve.obj #dress_shortsleeve1.obj #tanktop.obj #tShirt_pd20_tri.obj #tanktop.obj #tShirt_pd20_tri.obj # long_new.obj #./meshes/mark_exported.obj # . C:\Users\nsarafianos\Documents\TextDeformer\cow2giraffe_mesh_noCLIP_vgg_2500\mesh_final\mesh.obj #
-target_mesh: ./meshes_target/jacket_sdf_new.obj #flowers_sdf.obj # armor_sdf_new.obj # armor_new.obj #whale_new.obj #./meshes/patrick.obj # C:\Users\nsarafianos\Desktop\Patrick_Face\3D_new\patrick_panohead_simpl.obj # ./meshes/giraffe.obj
+mesh: ./meshes/longsleeve.obj 
+target_mesh: ./meshes_target/jacket_sdf_new.obj
 retriangulate: 0
 
 # Render settings
