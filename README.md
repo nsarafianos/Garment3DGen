@@ -42,6 +42,10 @@ cd ..\..
 ```
 
 ## Data
+1. Under ./meshes/ you can find a handful of garment geometries that we used for our work. 
+2. Under ./meshes_target/ you can place the target geometries you'd like to deform your input mesh to. You can obtain these very easily by passing an RGB image to [InstantMesh](https://github.com/TencentARC/InstantMesh). You can choose an image you already have, or generate one with text/sketch to image generation models. 
+3. Aim for your target images to not have intersections and ideally have stretching arms (not touching the other parts of the geometry)
+4. Aim for your source and target geometry to be reasonably close to each other. Going from a skirt to a shirt won't work well. 
 
 
 ## How to Run
