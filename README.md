@@ -1,4 +1,5 @@
-# Garment3DGen
+# Garment3DGen: 3D Garment Stylization and Texture Generation
+
 ![](https://nsarafianos.github.io/assets/garment3dgen/teaser.png)
 
 
