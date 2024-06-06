@@ -1,14 +1,18 @@
 # Garment3DGen
 ![](https://nsarafianos.github.io/assets/garment3dgen/teaser.png)
 
+
 ### [Project Page](https://nsarafianos.github.io/garment3dgen), [Paper](https://arxiv.org/abs/2403.18816), [Video](https://nsarafianos.github.io/assets/garment3dgen/video.mp4)
-**TL;DR**: Garment3DGen stylizes the geometry and textures of real and fantastical garments that we can fit on top of parametric bodies and simulate.
+### **TL;DR**: Garment3DGen stylizes the geometry and textures of real and fantastical garments that we can fit on top of parametric bodies and simulate.
+
+
 
 ## Installation 
 Tested with Windows 10, python 3.8, CUDA 11.8 but it should be significantly easier to set it up on Linux
 
 
 ### Basic Dependencies
+Create a fresh virtual_env and then:
 ```
 pip install torch==2.2.2 torchvision==0.17.2 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu118
 pip install -r .\requirements.txt
@@ -18,6 +22,7 @@ pip install git+https://github.com/openai/CLIP.git
 ### Repository Dependencies
 1. First we need to install nvdiffrast
 ```
+mkdir packages
 cd packages
 git clone https://github.com/NVlabs/nvdiffrast.git
 cd .\nvdiffrast\
@@ -66,3 +71,7 @@ cd ..\..
     year={2024}
 }
 ```
+
+<div align="center">
+  <img width="600" src="asset_visualization/armor.gif">
+</div>
