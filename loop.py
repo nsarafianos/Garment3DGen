@@ -13,7 +13,6 @@ from NeuralJacobianFields import SourceMesh
 
 from nvdiffmodeling.src import render
 
-from PIL import Image
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
@@ -33,17 +32,8 @@ from pytorch3d.loss import (
     mesh_laplacian_smoothing,
     mesh_normal_consistency,
 )
-# from collisions import collision_penalty
 from pytorch3d.ops import sample_points_from_meshes
-# CUDA_LAUNCH_BLOCKING=1
 
-# def triangle_area(vertices):
-#     # Calculate the area of a triangle given its vertices
-#     edge1 = vertices[1] - vertices[0]
-#     edge2 = vertices[2] - vertices[0]
-#     cross_product = torch.cross(edge1, edge2)
-#     area = 0.5 * torch.norm(cross_product)
-#     return area
 
 def total_triangle_area(vertices):
     # Calculate the sum of the areas of all triangles in the mesh
@@ -365,88 +355,19 @@ def loop(cfg):
 
         optimizer.zero_grad()
 
-        # Diff Rendering Loss
-        #
-        # clip_loss = l1_avg(train_render, train_target_render)
-        # logger.add_scalar('clip_loss', clip_loss, global_step=it)
 
-        # # CLIP similarity losses
         normalized_clip_render = (train_render - clip_mean[None, :, None, None]) / clip_std[None, :, None, None]
-
-
-        # if CLIP_embeddings:
-        #     image_embeds = model.encode_image(
-        #         normalized_clip_render
-        #     )
-        #     with torch.no_grad():
-        #         normalized_base_render = (base_render - clip_mean[None, :, None, None]) / clip_std[None, :, None, None]
-        #         base_embeds = model.encode_image(normalized_base_render)
-        #
-        #         if use_target_mesh:
-        #             normalized_target_render = (train_target_render - clip_mean[None, :, None, None]) / clip_std[None, :, None, None]
-        #             image_target_embeds = model.encode_image(
-        #                 normalized_target_render
-        #             )
-        #
-        #     orig_image_embeds = image_embeds.clone() / image_embeds.norm(dim=1, keepdim=True)
-        #     delta_image_embeds = image_embeds - base_embeds
-        #     delta_image_embeds = delta_image_embeds / delta_image_embeds.norm(dim=1, keepdim=True)
-        #
-        #     clip_loss = cosine_avg(orig_image_embeds, base_image_embeds.clone() / base_image_embeds.norm(dim=1, keepdim=True))
-        #     delta_clip_loss = cosine_avg(delta_image_embeds, delta_img_embeds)
-
-        # if use_target_mesh:
-        #     image_target_embeds_norm = image_target_embeds.clone() / image_target_embeds.norm(dim=1, keepdim=True)
-        #     delta_image_target_embeds = image_target_embeds - image_embeds
-        #     delta_image_target_embeds = delta_image_target_embeds / delta_image_target_embeds.norm(dim=1, keepdim=True)
-
-        # clip_loss = cosine_avg(orig_image_embeds, image_target_embeds_norm)
-        # delta_clip_loss = cosine_avg(delta_image_embeds, delta_image_target_embeds)
-
-        # clip_loss = cosine_avg(orig_image_embeds, target_text_embeds)
-        # delta_clip_loss = cosine_avg(delta_image_embeds, delta_text_embeds)
-
-        # vgg_loss = get_vgg_loss(train_render, train_target_render)
-
-        # deformed_features = resnet(resize(train_render, out_shape=(160, 160), interp_method=resize_method))
-        # target_features = resnet(resize(train_target_render, out_shape=(160, 160), interp_method=resize_method))
-        # face_loss = l1_avg(deformed_features, target_features)
-
-        # deformed_features =  fclip.encode_images(['C:\\Users\\nsarafianos\\Desktop\\garments\\jacket.jpg'], batch_size=cfg.batch_size)
-
-
-        # image_embeds = fclip.encode_image_tensors(train_render)
-        # orig_image_embeds = image_embeds.clone() / image_embeds.norm(dim=1, keepdim=True)
-        # with torch.no_grad():
-        #     base_embeds = fclip.encode_image_tensors(base_render)
-        # delta_image_embeds = image_embeds - base_embeds
-        # delta_image_embeds = delta_image_embeds / delta_image_embeds.norm(dim=1, keepdim=True)
-
-        # clip_loss = cosine_avg(orig_image_embeds, target_direction_embeds)
-        # delta_clip_loss = cosine_avg(delta_image_embeds, delta_direction_embeds)
-
-        # garment_loss = l1_avg(image_embeds, target_direction_embeds)
-
-        # clip_loss = cosine_avg(orig_image_embeds, target_text_embeds)
-        # delta_clip_loss = cosine_avg(delta_image_embeds, delta_text_embeds)
-
-        # clip_loss = cosine_avg(orig_image_embeds, target_text_embeds)
-        # delta_clip_loss = cosine_avg(delta_image_embeds, delta_text_embeds)
 
         deformed_features = fclip.encode_image_tensors(train_render)
         target_features = fclip.encode_image_tensors(train_target_render)
         garment_loss = l1_avg(deformed_features, target_features)
         l1_loss = l1_avg(train_render, train_target_render)
 
-        # Deform the mesh
-        # new_src_mesh = src_mesh.offset_verts(deform_verts)
-
-        # We sample 5k points from the surface of each mesh
+        # We sample 10k points from the surface of each mesh
         sample_src = sample_points_from_meshes(deformed_mesh_p3d, 10000)
         sample_trg = sample_points_from_meshes(trg_mesh_p3d, 10000)
-        #
-        #
-        # # We compare the two sets of pointclouds by computing (a) the chamfer loss
+
+        # We compare the two sets of pointclouds by computing (a) the chamfer loss
         loss_chamfer, _ = chamfer_distance(sample_trg, sample_src)
         loss_chamfer *= 25.
         #
@@ -461,40 +382,8 @@ def loop(cfg):
 
         loss_triangles = triangle_size_regularization(deformed_mesh_p3d.verts_list()[0])/100000.
 
-
-
-        # target_features = resnet(resize(train_target_render, out_shape=(160, 160), interp_method=resize_method))
-        # face_loss = l1_avg(deformed_features, target_features)
-
-        # print('here')
-        # Calculate embedding (unsqueeze to add batch dimension)
-        # deformed_features = resnet(resize(train_render, out_shape=(160, 160), interp_method=resize_method))
-        # target_features = resnet(resize(train_target_render, out_shape=(160, 160), interp_method=resize_method))
-        # face_loss = cosine_avg(deformed_features, target_features)
-        # l1_loss = l1_avg(train_render, train_target_render)
-        # clip_loss = cosine_avg(orig_image_embeds, image_target_embeds_norm)
-        # delta_clip_loss = cosine_avg(delta_image_embeds, delta_image_target_embeds)
-
-        # clip_loss_target = cosine_avg(orig_image_embeds, image_target_embeds_norm)
-        # delta_clip_loss_target = cosine_avg(delta_image_embeds, delta_image_target_embeds)
-
-        # deformed_deep_features = fe(normalized_clip_render)[cfg.consistency_vit_layer]
-        # target_deep_features = fe(normalized_target_render)[cfg.consistency_vit_layer]
-        # orig_image_features = fe(image)[cfg.consistency_vit_layer]
-        #
-        # image_embedding_loss = cosine_avg(deformed_deep_features, orig_image_features)
-        # target_embedding_loss = cosine_avg(deformed_deep_features, target_deep_features)
-
-        # logger.add_scalar('vgg_loss', face_loss, global_step=it)
         logger.add_scalar('l1_loss', l1_loss, global_step=it)
         logger.add_scalar('garment_loss', garment_loss, global_step=it)
-        # logger.add_scalar('clip_loss', clip_loss, global_step=it)
-        # logger.add_scalar('delta_clip_loss', delta_clip_loss, global_step=it)
-        # logger.add_scalar('clip_loss_target', clip_loss_target, global_step=it)
-        # logger.add_scalar('delta_clip_loss_target', delta_clip_loss_target, global_step=it)
-
-        # logger.add_scalar('image_embedding_loss', image_embedding_loss, global_step=it)
-        # logger.add_scalar('target_embedding_loss', target_embedding_loss, global_step=it)
 
         # Jacobian regularization
         r_loss = (((gt_jacobians) - torch.eye(3, 3, device=device)) ** 2).mean()
@@ -512,49 +401,23 @@ def loop(cfg):
         logger.add_scalar('laplacian', loss_laplacian, global_step=it)
         logger.add_scalar('triangles', loss_triangles, global_step=it)
 
-        # total_loss = (cfg.clip_weight * garment_loss + # cfg.clip_weight * face_loss + #cfg.delta_clip_weight * delta_clip_loss +
-        #               cfg.regularize_jacobians_weight * r_loss + cfg.consistency_loss_weight * consistency_loss)
 
         if it > 1000 and clip_flag:
             cfg.clip_weight = 0
             cfg.consistency_loss_weight = 0
             cfg.regularize_jacobians_weight = 0.025
             clip_flag = False
-            # cfg.regularize_jacobians_weight *= 0.95
         regularizers = loss_chamfer + loss_edge + loss_normal + loss_laplacian + loss_triangles
         total_loss = (cfg.clip_weight * garment_loss + cfg.delta_clip_weight * l1_loss +
                       cfg.regularize_jacobians_weight * r_loss + cfg.consistency_loss_weight * consistency_loss + regularizers)
-        # total_loss = (cfg.clip_weight * clip_loss + cfg.delta_clip_weight * delta_clip_loss +
-        #               cfg.regularize_jacobians_weight * r_loss + cfg.consistency_loss_weight * consistency_loss)
-        # total_loss = cfg.clip_weight * garment_loss
-        logger.add_scalar('total_loss', total_loss, global_step=it)
 
-        # if best_losses['total'] > total_loss:
-        #     best_losses['total'] = total_loss.detach()
-        #     obj.write_obj(
-        #         str(output_path / 'mesh_best_total'),
-        #         m.eval()
-        #     )
-        #
-        # if best_losses['CLIP'] > l1_loss:#_target
-        #     best_losses['CLIP'] = l1_loss.detach()#_target
-        #     obj.write_obj(
-        #         str(output_path / 'mesh_best_clip'),
-        #         m.eval()
-        #     )
+        logger.add_scalar('total_loss', total_loss, global_step=it)
 
         total_loss.backward()
         optimizer.step()
         t_loop.set_description(
                                f'L1 = {cfg.delta_clip_weight * l1_loss.item()}, '
                                f'CLIP = {cfg.clip_weight * garment_loss.item()}, '
-                               # f'CLIP Loss = {cfg.clip_weight * clip_loss.item()}, '
-                               # f'Delta CLIP Loss = {cfg.delta_clip_weight * delta_clip_loss.item()}, '
-                               # f'VGG Loss = {cfg.clip_weight * face_loss.item()}, '
-                               # f'Face Loss = {cfg.clip_weight * face_loss.item()}, '
-                               # f'Delta CLIP Loss = {cfg.delta_clip_weight * delta_clip_loss.item()}, '
-                               # f'Image CLIP Loss = {cfg.clip_weight * clip_loss_target.item()}, '
-                               # f'Image Delta CLIP Loss = {cfg.delta_clip_weight * delta_clip_loss_target.item()}, '
                                f'Jacb = {cfg.regularize_jacobians_weight * r_loss.item()}, '
                                f'MVC = {cfg.consistency_loss_weight * consistency_loss.item()}, '
                                f'Chamf = {loss_chamfer.item()}, '

@@ -38,7 +38,7 @@ set DISTUTILS_USE_SDK=1
 python setup.py install
 cd ..
 ```
-3. And finally for Fashion-CLIP 
+3. And finally for Fashion-CLIP (already provided under packages. Make sure you have the dependences)
 
 ```
 git clone https://github.com/patrickjohncyh/fashion-clip.git
